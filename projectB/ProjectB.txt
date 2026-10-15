@@ -1,0 +1,5 @@
+hey Professor so i did all the steps. pretty cool project. any issues i had and figured out are gonna be in comments in kernel.c otherwise after using the resource it was straight forward ish.
+So I made a small method named printchar that prints exactly one letter using interrupt 10. you can see it in action during read_string method. where each time you type it shows the letters. 
+also i made readsector method using a buffer of sector size 512 you can see it working if you run the program since i also added an extra interrupt call for ax =2 so just run the program  and it should print the message 
+as you instructed.
+I also added the declerations in the beginning of the file because there kept being a type mismatch on printString so to avoid that i did so.

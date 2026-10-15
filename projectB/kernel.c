@@ -1,0 +1,98 @@
+// Omar Mahmoud
+// kernel hello
+/* Omar Mahmoud */
+
+void printchar(char letter);
+void printString(char* word);
+void read_string(char* array);
+void readsector(char* array , int sector);
+void handleInterrupt21(int ax , int bx , int cx , int dx);
+
+
+main()
+{
+    char line[80];
+    char buffer[512];
+    printString("Enter a line: ");
+    makeInterrupt21();
+    interrupt(0x21,1,line,0,0);
+    interrupt(0x21,0,line,0,0);
+    interrupt(0x21,2,buffer,0,0);
+    while(1){}
+}
+
+void printchar(char letter){
+interrupt(0x10, 0xe * 256+ letter , 0,0,0);
+}
+
+void printString(char* word){
+int i=0;
+int ax;
+while(word[i] != '\0')
+   {
+
+ax =  0xe * 256 + word[i];
+interrupt(0x10, ax, 0, 0,0);
+i++;
+    }
+}
+
+
+
+
+void read_string(char* array){
+int value = 0;
+int i=0;
+while ((value = interrupt(0x16 ,0,0,0,0)) != 0xd)
+  {
+    if (value == 0x8){
+
+        i = i-1;
+        printchar(value);                       // figured it out the hardway. everytime we use interrupt 10 the cursor is moved one position to the right
+        printchar(' ');                         // so  that when we write then next character it doesn't overwrite the first. which has caused  me to write the backspace twice. the first
+        printchar(value);                       // to  move the cursor back but the second one  to counteract interrupt 10 so that when we  press back space again we can remove the next letter.
+        }else {
+
+array[i] = value;
+printchar(value);
+i++;
+    }
+  }
+array[i] = 0xa;
+array[i+1] =0x0;
+printchar('\n');    // added new line and then carriage return which is basically starting at the beginning of line. so we mimick endl.
+printchar('\r');
+
+}
+
+
+
+void readsector(char* array, int sector){
+    int ah=2;
+    int al=1;
+    int bx = array;
+    int ch =0;
+    int cl = sector + 1;
+    int dh =0;
+    int dl = 0x80;
+    int ax =ah*256+al;
+    int cx =ch*256+cl;
+    int dx =dh*256+dl;
+
+    interrupt(0x13,ax , bx, cx , dx);
+
+}
+
+
+
+void handleInterrupt21(int ax, int bx, int cx, int dx){
+    if(ax == 0){
+       printString(bx);
+    }else if (ax == 1){
+            read_string(bx);
+    }else if(ax == 2){
+    readsector(bx, cx);
+    }else{
+        printString("Error , wrong input choose a number between 0 and 2 ");
+}
+}
