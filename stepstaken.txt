@@ -1,5 +1,0 @@
-hey professor so I have completed the steps following what i remembered and wrote down from class as well as going over the pdf.
-kept messing around with the hex memory locations till i got it printing properly. also made a mistake where i forgot to put count=1000 when using dd if=/dev/zero 
-it made the disk image over gb in space although it ran it didn't print at all.
-
-overall i have done all the steps
