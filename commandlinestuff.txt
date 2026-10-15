@@ -1,0 +1,33 @@
+if windows: run cmd
+if Mac: Terminal
+
+ssh comp350@159.203.78.94
+
+yes [enter]
+
+comp350Fall2026
+
+commands:
+ls
+mkdir margaret
+cd margaret
+ps axu
+top
+kill 12345
+exit
+nano hiya.c
+    ctrl-x y enter
+
+    ctrl-k, ctrl-u
+ls
+ls -l
+cp ../margaret/hiya.c .
+[up arrow]
+[ctrl-c]
+[tab]
+
+scp comp350@159.203.78.94:margaret/hiya.c .
+
+scp z100_crochet.txt comp350@159.203.78.94:margaret/
+
+

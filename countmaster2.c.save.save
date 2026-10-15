@@ -1,0 +1,35 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+
+
+
+int main (int argc, char* argv[]){
+
+
+    char* args[] =  {"./countprimes", argv[1] , argv[2], NULL};  //figured out the hard way that execvp only takes  strings
+    int total = 0;
+    int rep =  atoi(argv[3]);
+    int childexit;
+    int F;
+    int status;
+    pid_t processpid[rep+1];
+  
+    for (int  i = 0 ; i < rep ; i++){
+       F =  fork();
+       status = 0;
+       processpid[i] = F;
+             if (F == 0 ){
+             execvp("./countprimes", args);
+             }
+    }
+    for (int  j = 0; j < rep ; j++){
+        waitpid(processpid[j],&status, 0);
+        childexit = WEXITSTATUS(status);
+        total = total + childexit;
+    }
+    printf("printing total for all pids  %d\n" , total);
+
+}

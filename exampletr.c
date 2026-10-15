@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+int main()
+{
+    char c='A';
+    char carray[10];
+    carray[0]='H';
+    carray[1]='i';
+    carray[2]='!';
+    carray[3]='\0';     //\0 is at the end of every string
+
+// a char* is effectively a string
+    char* astring="Hi class\n";
+
+   printf("c is %c\n", c);
+   printf("the memory address of c is  %x\n" , &c);
+
+
+
+
+    printf("Here is my message:  %s",carray);
+
+    printf("A string: %s",astring);
+
+    printf("this is true %d and this is false %d\n",7==7,7<7);
+    for(int i=0; i<10; i++)
+    {
+        printf("loop i is %d\n",i);
+    }
+    int j=5;
+    while(j<10)
+    {
+        j=j+1;
+        if(j==7)
+            printf("7");        //if there's one line, brackets optional
+    }
+    
+
+    printf("Hello, World!\n");
+    return 0;
+}

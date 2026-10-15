@@ -1,0 +1,75 @@
+cp ../margaret/vivisection.c .
+
+nano only works with ascii text
+
+hexedit vivisection
+
+machine code file:
+    ELF: standard encoding for machine code in linux
+        (Windows?  you'd use EXE)
+    headers: define "sections"
+    a name of a library file???
+    a library, followed by function names
+    the raw machine code
+    section names
+    finally the symbol table
+
+objdump: decipher the file
+    objdump -d vivisection
+
+
+what's going on in main?
+    1. make a stack frame: return addr, all local vars
+
+objdump -x vivisection
+    sections
+        type of section
+        size
+        where it's going in memory
+        where it is on disk (hexedit)
+        how we are going to have the memory behave
+
+    text: machine code
+    data global vars
+    bss global vars don't need initialised
+    rodata  constants, including strings
+    plt
+
+when you compile normally, libraries are not added
+    instead, little stubs "plt"
+    while running, library loaded on the fly
+        dynamic libary
+        .so
+
+        (windows: .dll)
+
+-static
+    don't use dynamic libraries, put them in your code
+
+
+> means redirect screen to file
+
+
+gcc -c vivisection.c        make an object file, don't call linker
+
+object file?
+    1. only my code, nothing else
+    2. function calls are just placeholder
+    3. no variables, just placeholders
+
+    we've compiled to machine code, but don't know where it's going in memory
+
+
+linker?
+
+    1. put files together, incl libraries
+    2. it figures out where in memory to put stuff
+
+
+ld -o vivisection vivisection.o vivisection2.o -lc -e main -dynamic-linker /lib64/ld-linux-x86-64.so.2
+
+    tell it: 1. what all object files were,
+            2. what libraries
+            3. what dynamic libraries
+            4. entry point: where program starts
+

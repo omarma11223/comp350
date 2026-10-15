@@ -1,0 +1,52 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+
+
+
+int main (int argc, char* argv[]){
+
+
+    int total = 0;
+    int rep =  atoi(argv[3]);
+    int childexit;
+    int F;
+    int status;
+    pid_t processpid[rep+1];
+    int start = atoi(argv[1]);
+    int end =  atoi(argv[2]);
+    printf("this is start at ints %d\n", start);
+    int range  = end - start + 1;
+    int size =  range/ rep ; // in this case 5 if we are using 4
+    int remainder =  range % rep; // in this  case equals 1 which we have to add one of the children  so we can calcualte the entire range.
+    char startarg[20];
+    char endarg[20];
+    char* args[] =  {"./countprimes", startarg , endarg, NULL};  //figured out the hard way that execvp only takes  strings
+    printf("this is start right before forloop %d\n", start);
+    for (int  i = 0 ; i < rep ; i++){
+       F =  fork();
+       status = 0;
+       processpid[i] = F;
+       sprintf( startarg , "%d", start);
+       end = start + size - 1;
+       if ( i  == 0 ){
+             end = end + remainder;  // adding the remainder to the first child only to get it out  of the way.
+       }
+        
+      sprintf(endarg, "%d", end);
+
+        if (F == 0 ){
+             execvp("./countprimes", args);
+       }
+       start = end + 1; // we do this so for example the first childs end and the second childs start won't be the same and checked twice.
+    }
+    for (int  j = 0; j < rep ; j++){
+        waitpid(processpid[j],&status, 0);
+        childexit = WEXITSTATUS(status);
+        total = total + childexit;
+    }
+    printf("printing total for all pids  %d\n" , total);
+
+}
