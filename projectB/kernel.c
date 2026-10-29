@@ -7,17 +7,20 @@ void printString(char* word);
 void read_string(char* array);
 void readsector(char* array , int sector);
 void handleInterrupt21(int ax , int bx , int cx , int dx);
-
+void readFile(char* filename, char* buff, int secsread);
 
 main()
 {
     char line[80];
-    char buffer[512];
-    printString("Enter a line: ");
+    char buffer[13312];
+    int sectorsRead;
     makeInterrupt21();
-    interrupt(0x21,1,line,0,0);
-    interrupt(0x21,0,line,0,0);
-    interrupt(0x21,2,buffer,0,0);
+    interrupt(0x21,3,"messag", buffer,&sectorsRead);
+    if(sectorsRead>0){
+            interrupt(0x21,0,buffer,0,0);
+    }else{
+            interrupt(0x21,0,"messag not found\r\n",0,0);
+    }
     while(1){}
 }
 
@@ -84,6 +87,42 @@ void readsector(char* array, int sector){
 }
 
 
+void readFile(char* filename, char* buff, int secsread)
+{
+int i = 0;
+int count = 0;
+char dir[512];
+int entry = 0;
+int j = 0;
+int k = 0;
+int place =0;
+int offset = 0;
+
+readsector(dir,2);
+while(filename[i] != '\0'){
+    buff[i] = filename[i];
+    }
+for (entry = 0; entry < 16; entry++){
+    for(j = 0  ;  j < 6 ; j++){
+      if (filename[j] == dir[entry*32+j]){
+        count = count + 1;
+        printchar(dir[entry*32+i]);
+      }
+    }
+     if (count == 6){
+        place = entry;
+       for (k = 6; k < 32 ; k++){
+            if(dir[place*32*k] == 0){
+                    break;
+            }
+            readsector(buff + offset ,dir[place*32+k]);
+            offset = offset + 512;
+            secsread = secsread+1;
+      }
+    }
+
+  }
+}
 
 void handleInterrupt21(int ax, int bx, int cx, int dx){
     if(ax == 0){
@@ -91,8 +130,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
     }else if (ax == 1){
             read_string(bx);
     }else if(ax == 2){
-    readsector(bx, cx);
+            readsector(bx, cx);
+    }else if (ax == 3){
+            readFile(bx, cx , dx);
     }else{
         printString("Error , wrong input choose a number between 0 and 2 ");
-}
+  }
 }
