@@ -7,7 +7,7 @@ void printString(char* word);
 void read_string(char* array);
 void readsector(char* array , int sector);
 void handleInterrupt21(int ax , int bx , int cx , int dx);
-void readFile(char* filename, char* buff, int secsread);
+void readFile(char* filename, char* buff, int* secsread);
 
 main()
 {
@@ -15,14 +15,12 @@ main()
     char buffer[13312];
     int sectorsRead;
     makeInterrupt21();
-    interrupt(0x21,3,"messag", buffer,&sectorsRead);
-    if(sectorsRead>0){
-            interrupt(0x21,0,buffer,0,0);
-    }else{
-            interrupt(0x21,0,"messag not found\r\n",0,0);
-    }
+     interrupt(0x21,4,"shell",0,0);
     while(1){}
 }
+
+
+
 
 void printchar(char letter){
 interrupt(0x10, 0xe * 256+ letter , 0,0,0);
@@ -86,8 +84,17 @@ void readsector(char* array, int sector){
 
 }
 
-
-void readFile(char* filename, char* buff, int secsread)
+void executeProgram(char* name){
+char buffe[13312];
+int i = 0;
+int sectors;
+readFile(name, buffe, &sectors);
+for (i = 0; i < sectors *512 ;i++){
+    putInMemory(0x2000, i ,buffe[i]);
+     }
+    launchProgram(0x2000);
+}
+void readFile(char* filename, char* buff, int* secsread)
 {
 int i = 0;
 int count = 0;
@@ -97,32 +104,61 @@ int j = 0;
 int k = 0;
 int place =0;
 int offset = 0;
-
+int found = 0;
+*secsread = 0;
 readsector(dir,2);
+printString("readfile reached");
 while(filename[i] != '\0'){
     buff[i] = filename[i];
+    i++;
     }
 for (entry = 0; entry < 16; entry++){
     for(j = 0  ;  j < 6 ; j++){
       if (filename[j] == dir[entry*32+j]){
         count = count + 1;
-        printchar(dir[entry*32+i]);
       }
     }
+
      if (count == 6){
+        found  =1;
         place = entry;
        for (k = 6; k < 32 ; k++){
-            if(dir[place*32*k] == 0){
+            if(dir[place*32+k] == 0){
                     break;
             }
             readsector(buff + offset ,dir[place*32+k]);
             offset = offset + 512;
-            secsread = secsread+1;
+            (*secsread)++;
+
       }
+        break;
     }
 
+        count = 0 ;
   }
+     if(found == 0 ){
+        printString("no file found\r\n ");
+        }
+
 }
+
+
+
+
+void terminateProgram(){
+    char shellname[6];
+         shellname[0]='s';
+         shellname[1]='h';
+         shellname[2]='e';
+         shellname[3]='l';
+         shellname[4]='l';
+         shellname[5]='\0';
+
+        executeProgram(shellname);
+}
+
+
+
 
 void handleInterrupt21(int ax, int bx, int cx, int dx){
     if(ax == 0){
@@ -133,7 +169,11 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
             readsector(bx, cx);
     }else if (ax == 3){
             readFile(bx, cx , dx);
+    }else if (ax == 4){
+            executeProgram(bx);
+    }else if(ax == 5){
+        terminateProgram();
     }else{
-        printString("Error , wrong input choose a number between 0 and 2 ");
+        printString("Error , wrong input choose a number between 0 and 5 ");
   }
 }
