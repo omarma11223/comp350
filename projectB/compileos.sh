@@ -21,6 +21,7 @@ as86 userlib.asm -o  userlib_asm.o
 ld86 -o shell -d shell_c.o userlib_asm.o
 
 gcc -o loadFile loadFile.c
+
 ./loadFile kernel
 ./loadFile shell
 #./loadFile messag.txt

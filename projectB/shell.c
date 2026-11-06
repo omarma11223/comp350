@@ -25,10 +25,15 @@ int i =  0;
     j = 0;
     if(same(command1,strip,4) == 1 ){
         syscall(4,filename);
-
-    }else if(same(command2,strip, 4) == 1){
+        }
+     if(same(command2,strip, 4) == 1){
         syscall(3,filename, buffer, &sectorsRead);
+        
+        if(sectorsRead == 0) {
+            syscall(0, "file not found\r\n");
+           }else if(&sectorsRead > 0) {
         syscall(0, buffer);
+        }
     }else{
         syscall(0,"BAD COMMAND\r\n");
         }
